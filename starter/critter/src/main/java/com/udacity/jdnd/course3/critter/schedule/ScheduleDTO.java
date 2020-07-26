@@ -1,10 +1,13 @@
 package com.udacity.jdnd.course3.critter.schedule;
 
+import com.udacity.jdnd.course3.critter.pet.PetEntity;
+import com.udacity.jdnd.course3.critter.user.EmployeeEntity;
 import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents the form that schedule request and response data takes. Does not map
@@ -16,6 +19,24 @@ public class ScheduleDTO {
     private List<Long> petIds;
     private LocalDate date;
     private Set<EmployeeSkill> activities;
+
+    public ScheduleDTO(){}
+
+    public ScheduleDTO(ScheduleEntity scheduleEntity){
+        this.id = scheduleEntity.getId();
+        this.employeeIds = scheduleEntity.getEmployees().stream().map(EmployeeEntity::getId).collect(Collectors.toList());
+        this.petIds = scheduleEntity.getPets().stream().map(PetEntity::getId).collect(Collectors.toList());
+        this.date = scheduleEntity.getDate();
+        this.activities = scheduleEntity.getActivities();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public List<Long> getEmployeeIds() {
         return employeeIds;

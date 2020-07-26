@@ -2,28 +2,34 @@ package com.udacity.jdnd.course3.critter.user;
 
 import com.udacity.jdnd.course3.critter.pet.PetEntity;
 
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * Represents the form that customer request and response data takes. Does not map
- * to the database directly.
- */
-public class CustomerDTO {
+@Entity
+@Table(name = "customers")
+public class CustomerEntity {
+    @Id
+    @GeneratedValue
+    @Column(name = "customer_id")
     private long id;
     private String name;
+    @Column(name = "phone_number")
     private String phoneNumber;
     private String notes;
-    private List<Long> petIds;
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<PetEntity> pets;
 
-    public CustomerDTO(){}
+    public CustomerEntity(){
+        this.pets = new ArrayList<>();
+    }
 
-    protected CustomerDTO(CustomerEntity customerEntity){
-        this.id = customerEntity.getId();
-        this.name = customerEntity.getName();
-        this.notes = customerEntity.getNotes();
-        this.phoneNumber = customerEntity.getPhoneNumber();
-        this.petIds = customerEntity.getPets().stream().map(PetEntity::getId).collect(Collectors.toList());
+    public CustomerEntity(CustomerDTO customerDTO){
+        this.id = customerDTO.getId();
+        this.name = customerDTO.getName();
+        this.phoneNumber = customerDTO.getPhoneNumber();
+        this.notes = customerDTO.getNotes();
+        this.pets = new ArrayList<>();
     }
 
     public long getId() {
@@ -58,11 +64,11 @@ public class CustomerDTO {
         this.notes = notes;
     }
 
-    public List<Long> getPetIds() {
-        return petIds;
+    public List<PetEntity> getPets() {
+        return pets;
     }
 
-    public void setPetIds(List<Long> petIds) {
-        this.petIds = petIds;
+    public void setPets(List<PetEntity> pets) {
+        this.pets = pets;
     }
 }

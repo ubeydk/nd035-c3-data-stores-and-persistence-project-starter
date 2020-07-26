@@ -1,25 +1,34 @@
 package com.udacity.jdnd.course3.critter.user;
 
+import com.udacity.jdnd.course3.critter.schedule.ScheduleEntity;
+
+import javax.persistence.*;
 import java.time.DayOfWeek;
+import java.util.List;
 import java.util.Set;
 
-/**
- * Represents the form that employee request and response data takes. Does not map
- * to the database directly.
- */
-public class EmployeeDTO {
+@Entity
+@Table(name = "employees")
+public class EmployeeEntity {
+    @Id
+    @GeneratedValue
+    @Column(name = "employee_id")
     private long id;
     private String name;
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<EmployeeSkill> skills;
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private Set<DayOfWeek> daysAvailable;
 
-    public EmployeeDTO(){}
+    public EmployeeEntity(){}
 
-    public EmployeeDTO(EmployeeEntity employeeEntity){
-        this.id = employeeEntity.getId();
-        this.daysAvailable = employeeEntity.getDaysAvailable();
-        this.name = employeeEntity.getName();
-        this.skills = employeeEntity.getSkills();
+    protected EmployeeEntity(EmployeeDTO employeeDTO){
+        this.id = employeeDTO.getId();
+        this.daysAvailable = employeeDTO.getDaysAvailable();
+        this.name = employeeDTO.getName();
+        this.skills = employeeDTO.getSkills();
     }
 
     public long getId() {
