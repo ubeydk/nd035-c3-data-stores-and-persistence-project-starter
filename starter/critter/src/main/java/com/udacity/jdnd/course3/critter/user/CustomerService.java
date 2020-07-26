@@ -2,14 +2,14 @@ package com.udacity.jdnd.course3.critter.user;
 
 import com.udacity.jdnd.course3.critter.pet.PetEntity;
 import com.udacity.jdnd.course3.critter.pet.PetRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class CustomerService {
 
@@ -19,21 +19,18 @@ public class CustomerService {
     @Autowired
     PetRepository petRepository;
 
-    public CustomerDTO saveCustomer(CustomerDTO customerDTO){
-        CustomerEntity savedCustomerEntity = customerRepository.save(new CustomerEntity(customerDTO));
-        return new CustomerDTO(savedCustomerEntity);
+    public CustomerEntity saveCustomer(CustomerEntity customerEntity){
+        return customerRepository.save(customerEntity);
     }
 
-    public List<CustomerDTO> getAllCustomers(){
-        List<CustomerEntity> customerEntities = customerRepository.findAll();
-        return customerEntities.stream().map(CustomerDTO::new).collect(Collectors.toList());
+    public List<CustomerEntity> getAllCustomers(){
+        return customerRepository.findAll();
     }
 
-    public CustomerDTO getOwnerByPet(long petId){
+    public CustomerEntity getOwnerByPet(long petId){
         Optional<PetEntity> optionalPetEntity = petRepository.findById(petId);
-        if(optionalPetEntity.isPresent()){
-            return new CustomerDTO(optionalPetEntity.get().getOwner());
-        }
+        if(optionalPetEntity.isPresent())
+            return optionalPetEntity.get().getOwner();
         return null;
     }
 

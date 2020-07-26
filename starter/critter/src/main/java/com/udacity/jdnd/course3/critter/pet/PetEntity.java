@@ -11,7 +11,7 @@ import java.util.List;
 @Table(name = "pets")
 public class PetEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pet_id")
     private long id;
     @Enumerated(EnumType.STRING)

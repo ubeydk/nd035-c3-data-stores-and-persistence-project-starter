@@ -14,7 +14,8 @@ import java.util.Set;
 @Table(name = "schedules")
 public class ScheduleEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "schedule_id")
     private long id;
     @ManyToMany
     private List<EmployeeEntity> employees;

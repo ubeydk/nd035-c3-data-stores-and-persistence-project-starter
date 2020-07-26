@@ -2,39 +2,45 @@ package com.udacity.jdnd.course3.critter.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class EmployeeService {
     @Autowired
     EmployeeRepository employeeRepository;
 
-    public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO){
-        EmployeeEntity saveEmployee = employeeRepository.save(new EmployeeEntity(employeeDTO));
-        return new EmployeeDTO(saveEmployee);
+    public EmployeeEntity saveEmployee(EmployeeEntity employeeEntity){
+        return employeeRepository.save(employeeEntity);
     }
 
-    public EmployeeDTO getEmployee(long employeeId){
+    public EmployeeEntity getEmployee(long employeeId){
         Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(employeeId);
-        if(!optionalEmployeeEntity.isPresent())
-            return null;
-        return new EmployeeDTO(optionalEmployeeEntity.get());
+        if(optionalEmployeeEntity.isPresent())
+            return optionalEmployeeEntity.get();
+        return null;
     }
 
     public void setAvailability(Set<DayOfWeek> daysAvailable, long employeeId) {
-
         Optional<EmployeeEntity> optionalEmployeeEntity = employeeRepository.findById(employeeId);
         if(optionalEmployeeEntity.isPresent()){
             EmployeeEntity employeeEntity = optionalEmployeeEntity.get();
             employeeEntity.setDaysAvailable(daysAvailable);
             employeeRepository.save(employeeEntity);
         }
+    }
+
+    public List<EmployeeEntity> findEmployeesForService(Set<EmployeeSkill> skills, LocalDate date) {
+        List<EmployeeEntity> employeeEntities = employeeRepository.getAllByDaysAvailableContains(date.getDayOfWeek());
+        List<EmployeeEntity> filteredEmployeeEntities = employeeEntities.stream().filter(employeeEntity -> employeeEntity.getSkills().containsAll(skills)).collect(Collectors.toList());
+        return filteredEmployeeEntities;
     }
 
     public List<EmployeeEntity> getEmployeeEntitiesById(List<Long> employeeIds){
@@ -48,9 +54,5 @@ public class EmployeeService {
         return null;
     }
 
-    public List<EmployeeDTO> findEmployeesForService(EmployeeRequestDTO employeeDTO) {
-        List<EmployeeEntity> employeeEntities = employeeRepository.getAllByDaysAvailableContains(employeeDTO.getDate().getDayOfWeek());
-        List<EmployeeEntity> filteredEmployeeEntities = employeeEntities.stream().filter(employeeEntity -> employeeEntity.getSkills().containsAll(employeeDTO.getSkills())).collect(Collectors.toList());
-        return filteredEmployeeEntities.stream().map(EmployeeDTO::new).collect(Collectors.toList());
-    }
+
 }

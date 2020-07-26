@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Handles web requests related to Users.
@@ -24,27 +25,36 @@ public class UserController {
 
     @PostMapping("/customer") //
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
-        return customerService.saveCustomer(customerDTO);
+        CustomerEntity customerEntity = customerService.saveCustomer(new CustomerEntity(customerDTO));
+        return new CustomerDTO(customerEntity);
     }
 
     @GetMapping("/customer") //
     public List<CustomerDTO> getAllCustomers(){
-        return customerService.getAllCustomers();
+        List<CustomerEntity> customerEntities = customerService.getAllCustomers();
+        return customerEntities.stream().map(CustomerDTO::new).collect(Collectors.toList());
     }
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        return customerService.getOwnerByPet(petId);
+        CustomerEntity customerEntity = customerService.getOwnerByPet(petId);
+        if(customerEntity != null)
+            return new CustomerDTO(customerEntity);
+        return null;
     }
 
     @PostMapping("/employee")
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
-        return employeeService.saveEmployee(employeeDTO);
+        EmployeeEntity employeeEntity = employeeService.saveEmployee(new EmployeeEntity(employeeDTO));
+        return new EmployeeDTO(employeeEntity);
     }
 
     @PostMapping("/employee/{employeeId}")
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
-        return employeeService.getEmployee(employeeId);
+        EmployeeEntity employeeEntity = employeeService.getEmployee(employeeId);
+        if(employeeEntity != null)
+            return new EmployeeDTO(employeeEntity);
+        return null;
     }
 
     @PutMapping("/employee/{employeeId}")
@@ -54,7 +64,9 @@ public class UserController {
 
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeRequestDTO) {
-        return employeeService.findEmployeesForService(employeeRequestDTO);
+        List<EmployeeEntity> employeeEntities =
+                employeeService.findEmployeesForService(employeeRequestDTO.getSkills(), employeeRequestDTO.getDate());
+        return employeeEntities.stream().map(EmployeeDTO::new).collect(Collectors.toList());
     }
 
 }

@@ -1,15 +1,14 @@
 package com.udacity.jdnd.course3.critter.schedule;
 
-import com.udacity.jdnd.course3.critter.pet.PetEntity;
 import com.udacity.jdnd.course3.critter.pet.PetRepository;
 import com.udacity.jdnd.course3.critter.user.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Transactional
 @Service
 public class ScheduleService {
     @Autowired
@@ -24,35 +23,28 @@ public class ScheduleService {
     @Autowired
     CustomerRepository customerRepository;
 
-    public ScheduleDTO createSchedule(ScheduleDTO scheduleDTO) {
-        ScheduleEntity scheduleEntity = new ScheduleEntity(scheduleDTO);
-        if(scheduleDTO.getEmployeeIds() != null && !scheduleDTO.getEmployeeIds().isEmpty())
-            scheduleEntity.setEmployees(employeeRepository.findAllById(scheduleDTO.getEmployeeIds()));
-        if(scheduleDTO.getPetIds() != null && !scheduleDTO.getPetIds().isEmpty()){
-            scheduleEntity.setPets(petRepository.findAllById(scheduleDTO.getPetIds()));
-        }
-        ScheduleEntity savedScheduleEntity = scheduleRepository.save(scheduleEntity);
-        return new ScheduleDTO(savedScheduleEntity);
+    public ScheduleEntity createSchedule(ScheduleEntity scheduleEntity, List<Long> pet_ids, List<Long> employee_ids) {
+        if(pet_ids != null)
+            scheduleEntity.setPets(petRepository.findAllById(pet_ids));
+        if(employee_ids != null)
+            scheduleEntity.setEmployees(employeeRepository.findAllById(employee_ids));
+        return scheduleRepository.save(scheduleEntity);
     }
 
-    public List<ScheduleDTO> getAllSchedules() {
-        List<ScheduleEntity> scheduleEntities = scheduleRepository.findAll();
-        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
+    public List<ScheduleEntity> getAllSchedules() {
+        return scheduleRepository.findAll();
     }
 
-    public List<ScheduleDTO> getScheduleForPet(long petId) {
-        List<ScheduleEntity> scheduleEntities = scheduleRepository.getAllByPetsContains(petRepository.getOne(petId));
-        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
+    public List<ScheduleEntity> getScheduleForPet(long petId) {
+        return scheduleRepository.getAllByPetsContains(petRepository.getOne(petId));
     }
 
-    public List<ScheduleDTO> getScheduleForEmployee(long employeeId) {
-        List<ScheduleEntity> scheduleEntities = scheduleRepository.getAllByEmployeesContains(employeeRepository.getOne(employeeId));
-        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
+    public List<ScheduleEntity> getScheduleForEmployee(long employeeId) {
+        return scheduleRepository.getAllByEmployeesContains(employeeRepository.getOne(employeeId));
     }
 
-    public List<ScheduleDTO> getScheduleForCustomer(long customerId) {
+    public List<ScheduleEntity> getScheduleForCustomer(long customerId) {
         CustomerEntity customerEntity = customerRepository.getOne(customerId);
-        List<ScheduleEntity> scheduleEntities = scheduleRepository.getAllByPetsIn(customerEntity.getPets());
-        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
+        return scheduleRepository.getAllByPetsIn(customerEntity.getPets());
     }
 }

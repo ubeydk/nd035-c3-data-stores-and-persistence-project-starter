@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles web requests related to Schedules.
@@ -17,26 +18,32 @@ public class ScheduleController {
 
     @PostMapping
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
-        return scheduleService.createSchedule(scheduleDTO);
+        ScheduleEntity scheduleEntity = scheduleService.createSchedule(
+                new ScheduleEntity(scheduleDTO),scheduleDTO.getPetIds(), scheduleDTO.getEmployeeIds());
+        return new ScheduleDTO(scheduleEntity);
     }
 
     @GetMapping
     public List<ScheduleDTO> getAllSchedules() {
-        return scheduleService.getAllSchedules();
+        List<ScheduleEntity> scheduleEntities = scheduleService.getAllSchedules();
+        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
     }
 
     @GetMapping("/pet/{petId}")
     public List<ScheduleDTO> getScheduleForPet(@PathVariable long petId) {
-        return scheduleService.getScheduleForPet(petId);
+        List<ScheduleEntity> scheduleEntities = scheduleService.getScheduleForPet(petId);
+        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
     }
 
     @GetMapping("/employee/{employeeId}")
     public List<ScheduleDTO> getScheduleForEmployee(@PathVariable long employeeId) {
-        return scheduleService.getScheduleForEmployee(employeeId);
+        List<ScheduleEntity> scheduleEntities = scheduleService.getScheduleForEmployee(employeeId);
+        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
     }
 
     @GetMapping("/customer/{customerId}")
     public List<ScheduleDTO> getScheduleForCustomer(@PathVariable long customerId) {
-        return scheduleService.getScheduleForCustomer(customerId);
+        List<ScheduleEntity> scheduleEntities = scheduleService.getScheduleForCustomer(customerId);
+        return scheduleEntities.stream().map(ScheduleDTO::new).collect(Collectors.toList());
     }
 }

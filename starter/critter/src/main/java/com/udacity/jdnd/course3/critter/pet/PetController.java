@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles web requests related to Pets.
@@ -17,21 +18,28 @@ public class PetController {
 
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
-        return petService.savePet(petDTO);
+        PetEntity petEntity = new PetEntity(petDTO);
+        PetEntity savedPetEntity =  petService.savePet(petEntity, petDTO.getOwnerId());
+        return new PetDTO(savedPetEntity);
     }
 
     @GetMapping("/{petId}")
     public PetDTO getPet(@PathVariable long petId) {
-        return petService.getPet(petId);
+        PetEntity petEntity = petService.getPet(petId);
+        if(petEntity != null)
+            return new PetDTO(petEntity);
+        return null;
     }
 
     @GetMapping
     public List<PetDTO> getPets(){
-        return petService.getPets();
+        List<PetEntity> petEntities = petService.getPets();
+        return petEntities.stream().map(PetDTO::new).collect(Collectors.toList());
     }
 
     @GetMapping("/owner/{ownerId}")
     public List<PetDTO> getPetsByOwner(@PathVariable long ownerId) {
-        return petService.getPetsByOwner(ownerId);
+        List<PetEntity> petEntities = petService.getPetsByOwner(ownerId);
+        return petEntities.stream().map(PetDTO::new).collect(Collectors.toList());
     }
 }
